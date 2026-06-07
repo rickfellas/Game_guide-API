@@ -1,117 +1,114 @@
 import { Request, Response } from "express";
-import { guidesDB, commentsDB, Guide, Comment } from "../models/Database";
+import { prisma } from "../models/Database";
 
-/**
- * Cadastra um novo guia
- * Rota: POST /api/guides
- */
-export const createGuide = (req: Request, res: Response): void => {
-  
-const { gameId, title, content, category, tags } = req.body;
+export const createGuide = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { gameId, title, content, category, tags } = req.body;
+    const userId = "JogadorLocal"; // Fixo, pois tiramos a autenticação
 
-const userId = "JogadorLocal"; // Mock fixo pois não há mais autenticação
+    if (!gameId) {
+      res.status(400).json({ error: "É necessário selecionar um jogo para criar o guia." });
+      return;
+    }
 
-  if (!gameId || !userId || !title || !content || !category) {
-    res.status(400).json({ error: "Parâmetros obrigatórios ausentes." });
-    return;
+    const newGuide = await prisma.guide.create({
+      data: {
+        gameId,
+        userId,
+        title,
+        content,
+        category,
+        tags: tags || [],
+      }
+    });
+
+    res.status(201).json({ message: "Guia criado com sucesso!", guide: newGuide });
+  } catch (error) {
+    console.error("Erro ao criar guia:", error);
+    res.status(500).json({ error: "Erro interno ao salvar o guia." });
   }
-
-  const newGuide: Guide = {
-    id: `g${Date.now()}`,
-    gameId,
-    userId, // Em produção, extraído do token de autenticação
-    title,
-    content,
-    category,
-    tags: tags || [],
-    views: 0,
-    rating: 0,
-    createdAt: new Date(),
-  };
-
-  guidesDB.push(newGuide);
-
-  res.status(201).json({ message: "Guia criado com sucesso!", guide: newGuide });
 };
 
-/**
- * Retorna os detalhes do guia e incrementa visualizações
- * Rota: GET /api/guides/:id
- */
-export const getGuideDetails = (req: Request, res: Response): void => {
-  const { id } = req.params;
-  const guide = guidesDB.find((g) => g.id === id);
+export const getGuideDetails = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
 
-  if (!guide) {
+    // Atualiza as views (+1) e já busca os comentários atrelados
+    const guide = await prisma.guide.update({
+      where: { id },
+      data: { views: { increment: 1 } },
+      include: { comments: true } 
+    });
+
+    res.json({ guide, comments: guide.comments });
+  } catch (error) {
     res.status(404).json({ error: "Guia não encontrado." });
-    return;
   }
-
-  // Incrementa a views
-  guide.views += 1;
-
-  // Buscar comentários atrelados
-  const comments = commentsDB.filter((c) => c.guideId === id);
-
-  res.json({ guide, comments });
 };
 
-/**
- * Adiciona um voto (Upvote / Downvote)
- * Rota: POST /api/guides/:id/vote
- */
-export const voteGuide = (req: Request, res: Response): void => {
-  const { id } = req.params;
-  const { voteType } = req.body; // 'upvote' ou 'downvote'
+export const voteGuide = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { voteType } = req.body;
 
-  const guide = guidesDB.find((g) => g.id === id);
+    const incrementValue = voteType === "upvote" ? 1 : -1;
 
-  if (!guide) {
-    res.status(404).json({ error: "Guia não encontrado." });
-    return;
+    const guide = await prisma.guide.update({
+      where: { id },
+      data: { rating: { increment: incrementValue } }
+    });
+
+    res.json({ message: "Voto registrado!", rating: guide.rating });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao registrar o voto." });
   }
-
-  if (voteType === "upvote") {
-    guide.rating += 1;
-  } else if (voteType === "downvote") {
-    guide.rating -= 1;
-  } else {
-    res.status(400).json({ error: "Tipo de voto inválido. Use 'upvote' ou 'downvote'." });
-    return;
-  }
-
-  res.json({ message: "Voto registrado!", rating: guide.rating });
 };
 
-/**
- * Adiciona um comentário a um guia
- * Rota: POST /api/guides/:id/comments
- */
-export const addComment = (req: Request, res: Response): void => {
-  const { id } = req.params;
-  const { content, userId } = req.body;
+export const addComment = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { content, userId } = req.body;
 
-  const guide = guidesDB.find((g) => g.id === id);
+    const newComment = await prisma.comment.create({
+      data: {
+        guideId: id,
+        userId,
+        content
+      }
+    });
 
-  if (!guide) {
-    res.status(404).json({ error: "Guia não encontrado." });
-    return;
+    res.status(201).json({ message: "Comentário adicionado!", comment: newComment });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao adicionar comentário." });
   }
+};
 
-  if (!content || !userId) {
-    res.status(400).json({ error: "Conteúdo e userId são obrigatórios." });
-    return;
+// Busca os guias mais recentes de todos os jogos para o Feed da Home
+export const getRecentGuides = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const guides = await prisma.guide.findMany({
+      orderBy: { createdAt: 'desc' }, // Traz os mais novos primeiro
+      take: 20, // Limita aos 20 mais recentes para não pesar a tela inicial
+      include: { 
+        game: true // Pulo do gato: traz o título e ano do jogo junto com o guia!
+      }
+    });
+
+    res.json({ guides });
+  } catch (error) {
+    console.error("Erro ao buscar guias recentes:", error);
+    res.status(500).json({ error: "Erro interno ao carregar o feed." });
   }
-
-  const newComment: Comment = {
-    id: `c${Date.now()}`,
-    guideId: id,
-    userId,
-    content,
-    createdAt: new Date(),
-  };
-
-  commentsDB.push(newComment);
-
-  res.status(201).json({ message: "Comentário adicionado!", comment: newComment });
+};
+// Exclui um guia e seus comentários
+export const deleteGuide = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await prisma.comment.deleteMany({ where: { guideId: id } });
+    await prisma.guide.delete({ where: { id } });
+    
+    res.json({ message: "Guia excluído com sucesso!" });
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao excluir o guia" });
+  }
 };

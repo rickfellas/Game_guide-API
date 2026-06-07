@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Game {
+  id          String   @id @default(uuid())
+  title       String
+  franchise   String?
+  releaseYear Int?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // Um jogo pode ter vários guias atrelados a ele
+  guides      Guide[]
+}
+
+model Guide {
+  id        String   @id @default(uuid())
+  title     String
+  content   String   @db.Text
+  category  String
+  tags      Json     // O MySQL usa Json para salvar listas (arrays) perfeitamente
+  views     Int      @default(0)
+  rating    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  // Criando a relação com a tabela Game
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id])
+
+  userId    String
+
+  // Um guia pode ter vários comentários
+  comments  Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  userId    String
+
+  // Criando a relação com a tabela Guide
+  guideId   String
+  guide     Guide    @relation(fields: [guideId], references: [id])
+}

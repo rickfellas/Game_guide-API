@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { getGuidesForGame, getAllGames } from "../controllers/gameController";
-//import { authMiddleware } from "../middlewares/authMiddleware"; // <-- 1. importação add
+import { getGuidesForGame, getAllGames, createGame, deleteGame } from "../controllers/gameController";
 
 const router = Router();
 
-// Rota pública
 router.get("/", getAllGames);
+router.post("/", createGame); // <-- A Rota para salvar os jogos!
 router.get("/:gameId/guides", getGuidesForGame);
-
+router.get("/:id", deleteGame); 
 export default router;
