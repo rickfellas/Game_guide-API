@@ -199,7 +199,7 @@ export default function App() {
             onClick={() => setView("home")}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex justify-center items-center gap-3"
           >
-            <span>Entrar no Painel (Rykelme)</span>
+            <span>Entrar no Painel (Usuário01)</span>
             <span>➡️</span>
           </button>
         </div>
@@ -221,7 +221,7 @@ export default function App() {
           {/* Perfil do Usuário Simulado */}
           <div className="hidden md:flex items-center gap-2 mr-2 bg-slate-800/50 py-1.5 px-3 rounded-full border border-slate-700/50">
             <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">R</div>
-            <span className="text-sm font-medium text-slate-300">Rykelme</span>
+            <span className="text-sm font-medium text-slate-300">Usuário01</span>
           </div>
           
           <button onClick={() => setView("catalog")} className="text-sm font-medium text-slate-300 hover:text-white transition-colors bg-slate-800 px-4 py-2 rounded-lg">
