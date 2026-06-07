@@ -1,4 +1,18 @@
 import { useEffect, useState } from "react";
+import { 
+  ThumbsUp, 
+  ThumbsDown, 
+  Eye, 
+  Trash2, 
+  ArrowLeft, 
+  LogOut, 
+  Library, 
+  Search, 
+  MessageSquare, 
+  Gamepad2,
+  Lock,
+  ArrowRight
+} from "lucide-react";
 
 interface Game {
   id: string;
@@ -180,7 +194,10 @@ export default function App() {
           {/* Efeito de brilho no fundo do card */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-indigo-600/20 blur-3xl rounded-full pointer-events-none"></div>
           
-          <span className="text-6xl mb-6 block">🎮</span>
+          <div className="flex justify-center mb-6">
+            <Gamepad2 className="w-16 h-16 text-indigo-500" />
+          </div>
+          
           <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Hub de Guias</h1>
           <p className="text-slate-400 mb-8 leading-relaxed">
             Seu painel central para gerenciar estratégias, documentar loot e criar walkthroughs.
@@ -188,7 +205,7 @@ export default function App() {
 
           <div className="bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50 mb-8 text-left">
             <h2 className="text-white font-semibold mb-2 flex items-center gap-2">
-              <span>🔒</span> Acesso Administrativo
+              <Lock className="w-5 h-5 text-indigo-400" /> Acesso Administrativo
             </h2>
             <p className="text-sm text-slate-400 leading-relaxed">
               Você está prestes a entrar na sua área de autor. Neste painel, você tem permissões totais para <strong>cadastrar jogos</strong> e <strong>editar ou excluir seus guias</strong>.
@@ -200,7 +217,7 @@ export default function App() {
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex justify-center items-center gap-3"
           >
             <span>Entrar no Painel (Usuário01)</span>
-            <span>➡️</span>
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -214,7 +231,7 @@ export default function App() {
       {/* HEADER GLOBAL ATUALIZADO */}
       <header className="border-b border-white/10 bg-slate-900/80 backdrop-blur-md sticky top-0 z-10 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setView("home")}>
-          <span className="text-2xl">🎮</span>
+          <Gamepad2 className="w-8 h-8 text-indigo-500" />
           <h1 className="text-xl font-bold font-mono tracking-tight text-white hidden sm:block">Hub de Guias</h1>
         </div>
         <div className="flex gap-4 items-center">
@@ -224,17 +241,13 @@ export default function App() {
             <span className="text-sm font-medium text-slate-300">Usuário01</span>
           </div>
           
-          <button onClick={() => setView("catalog")} className="text-sm font-medium text-slate-300 hover:text-white transition-colors bg-slate-800 px-4 py-2 rounded-lg">
-            📚 Catálogo
+          <button onClick={() => setView("catalog")} className="flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors bg-slate-800 px-4 py-2 rounded-lg">
+            <Library className="w-4 h-4" /> Catálogo
           </button>
           
           {/* Botão de Sair (Logout) */}
-          <button 
-            onClick={() => setView("landing")} 
-            className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors"
-            title="Sair do Painel"
-          >
-            🚪
+          <button onClick={() => setView("landing")} className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Sair do Painel">
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </header>
@@ -258,7 +271,9 @@ export default function App() {
                   onChange={(e) => setSearchTerm(e.target.value)} 
                   className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg pl-4 pr-10 py-2 outline-none focus:border-indigo-500" 
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 select-none cursor-text">🔍</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 select-none cursor-text">
+                  <Search className="w-5 h-5" />
+                </span>
               </div>
               <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 outline-none focus:border-indigo-500">
                 <option value="">Todas as Categorias</option>
@@ -280,14 +295,16 @@ export default function App() {
               <div className="text-center py-20 text-slate-400">Carregando feed...</div>
             ) : filteredGuides.length === 0 ? (
               <div className="text-center py-20 bg-slate-900/40 rounded-xl border border-slate-800">
-                <span className="text-4xl mb-4 block">📭</span>
+                <Search className="w-12 h-12 text-slate-500 mx-auto mb-4" />
                 <p className="text-slate-400">Nenhum guia encontrado com esses filtros.</p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
                 {filteredGuides.map(guide => (
                   <div key={guide.id} onClick={() => { setSelectedGuideId(guide.id); setView("details"); }} className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 hover:bg-slate-800/80 transition-all cursor-pointer flex flex-col relative group">
-                    <button onClick={(e) => handleDeleteGuide(guide.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Excluir Guia">🗑️</button>
+                    <button onClick={(e) => handleDeleteGuide(guide.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Excluir Guia">
+                      <Trash2 className="w-5 h-5" />
+                    </button>
                     
                     <div className="flex justify-between items-start mb-3">
                       <span className="text-xs font-semibold px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded ring-1 ring-indigo-500/20">{guide.category}</span>
@@ -299,8 +316,12 @@ export default function App() {
                     
                     <div className="flex items-center justify-between pt-4 border-t border-slate-800/80">
                       <div className="flex items-center gap-4">
-                        <button onClick={(e) => handleVote(guide.id, "upvote", e)} className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors">👍 <span className="font-bold">{guide.rating}</span></button>
-                        <span className="flex items-center gap-1.5 text-slate-500 text-sm">👁️ {guide.views}</span>
+                        <div className="flex items-center gap-1.5 text-emerald-400">
+                          <ThumbsUp className="w-4 h-4" /> <span className="font-bold">{guide.rating}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                          <Eye className="w-4 h-4" /> {guide.views}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -310,11 +331,12 @@ export default function App() {
           </>
         )}
 
-        {/* --- RESTANTE DO CÓDIGO PERMANECE IGUAL (CATÁLOGO, CRIAR, DETALHES) --- */}
         {/* TELA 2: CATÁLOGO DE JOGOS */}
         {view === "catalog" && (
           <>
-            <button onClick={() => setView("home")} className="text-slate-400 hover:text-white mb-6 block">⬅️ Voltar para a Home</button>
+            <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Voltar para a Home
+            </button>
             <div className="mb-10 flex justify-between items-center">
               <div>
                 <h2 className="text-3xl font-bold text-white">Catálogo de Jogos</h2>
@@ -326,7 +348,9 @@ export default function App() {
             <div className="grid gap-4 md:grid-cols-3">
               {games.map(game => (
                 <div key={game.id} className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 flex flex-col relative group">
-                  <button onClick={(e) => handleDeleteGame(game.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Excluir Jogo">🗑️</button>
+                  <button onClick={(e) => handleDeleteGame(game.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Excluir Jogo">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                   <div className="text-xs text-indigo-400 mb-2">{game.franchise} • {game.releaseYear}</div>
                   <h3 className="text-lg font-bold text-white mb-4 flex-grow">{game.title}</h3>
                   <div className="flex gap-2 mt-auto">
@@ -342,7 +366,9 @@ export default function App() {
         {/* TELA 3: GUIAS DO JOGO ESPECÍFICO */}
         {view === "gameGuides" && selectedGame && (
           <div>
-             <button onClick={() => setView("catalog")} className="text-slate-400 hover:text-white mb-6 block">⬅️ Voltar ao Catálogo</button>
+             <button onClick={() => setView("catalog")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">
+               <ArrowLeft className="w-4 h-4" /> Voltar ao Catálogo
+             </button>
              <div className="flex justify-between items-center mb-8">
                 <h2 className="text-3xl font-bold text-white">Guias: {selectedGame.title}</h2>
                 <button onClick={() => setView("createGuide")} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium">+ Criar Guia</button>
@@ -352,7 +378,7 @@ export default function App() {
                 <div className="text-center py-20 text-slate-400">Carregando...</div>
              ) : gameGuides.length === 0 ? (
                 <div className="text-center py-20 bg-slate-900/40 rounded-xl border border-slate-800">
-                  <span className="text-4xl mb-4 block">👻</span>
+                  <Gamepad2 className="w-12 h-12 text-slate-500 mx-auto mb-4" />
                   <p className="text-slate-300 text-lg">Este jogo ainda não possui nenhum guia.</p>
                   <p className="text-slate-500 mt-2">Crie o primeiro guia para este jogo agora mesmo!</p>
                 </div>
@@ -360,15 +386,21 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-2">
                   {gameGuides.map(guide => (
                     <div key={guide.id} onClick={() => { setSelectedGuideId(guide.id); setView("details"); }} className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 hover:bg-slate-800/80 transition-all cursor-pointer relative group">
-                      <button onClick={(e) => handleDeleteGuide(guide.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">🗑️</button>
+                      <button onClick={(e) => handleDeleteGuide(guide.id, e)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                       <div className="flex justify-between items-start mb-3">
                         <span className="text-xs font-semibold px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded ring-1 ring-indigo-500/20">{guide.category}</span>
                       </div>
                       <h3 className="text-xl font-bold text-white mb-3 line-clamp-2">{guide.title}</h3>
                       <p className="text-slate-400 text-sm line-clamp-2 mb-6 flex-grow">{guide.content}</p>
                       <div className="flex items-center gap-4 pt-4 border-t border-slate-800/80">
-                        <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-bold">👍 {guide.rating}</span>
-                        <span className="flex items-center gap-1.5 text-slate-500 text-sm">👁️ {guide.views}</span>
+                        <span className="flex items-center gap-1.5 text-emerald-400 text-sm font-bold">
+                          <ThumbsUp className="w-4 h-4" /> {guide.rating}
+                        </span>
+                        <span className="flex items-center gap-1.5 text-slate-500 text-sm">
+                          <Eye className="w-4 h-4" /> {guide.views}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -380,7 +412,9 @@ export default function App() {
         {/* TELA 4: CRIAR JOGO */}
         {view === "createGame" && (
           <div className="max-w-xl mx-auto bg-slate-900/60 p-8 rounded-xl border border-slate-800">
-            <button onClick={() => setView("catalog")} className="text-slate-400 hover:text-white mb-6 block">⬅️ Cancelar</button>
+            <button onClick={() => setView("catalog")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Cancelar
+            </button>
             <h2 className="text-2xl font-bold text-white mb-6">Cadastrar Jogo</h2>
             <form onSubmit={handleCreateGame} className="space-y-4">
               <input required placeholder="Título do Jogo" value={newGame.title} onChange={e => setNewGame({...newGame, title: e.target.value})} className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3" />
@@ -394,7 +428,9 @@ export default function App() {
         {/* TELA 5: CRIAR GUIA */}
         {view === "createGuide" && selectedGame && (
           <div className="max-w-2xl mx-auto bg-slate-900/60 p-8 rounded-xl border border-slate-800">
-            <button onClick={() => setView("catalog")} className="text-slate-400 hover:text-white mb-6 block">⬅️ Cancelar</button>
+            <button onClick={() => setView("catalog")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Cancelar
+            </button>
             <h2 className="text-2xl font-bold text-white mb-6">Novo Guia: {selectedGame.title}</h2>
             <form onSubmit={handleCreateGuide} className="space-y-4">
               <input required placeholder="Título do Guia" value={newGuide.title} onChange={e => setNewGuide({...newGuide, title: e.target.value})} className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3" />
@@ -414,8 +450,12 @@ export default function App() {
         {/* TELA 6: DETALHES DO GUIA ABERTO */}
         {view === "details" && guideDetails && (
           <div className="max-w-3xl mx-auto relative">
-            <button onClick={() => setView("home")} className="text-slate-400 hover:text-white mb-6 block">⬅️ Voltar</button>
-            <button onClick={(e) => handleDeleteGuide(guideDetails.guide.id, e)} className="absolute top-0 right-0 text-slate-500 hover:text-red-500 transition-colors p-2 bg-slate-800/50 hover:bg-slate-800 rounded-lg">🗑️ Excluir Guia</button>
+            <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Voltar
+            </button>
+            <button onClick={(e) => handleDeleteGuide(guideDetails.guide.id, e)} className="absolute top-0 right-0 flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors p-2 bg-slate-800/50 hover:bg-slate-800 rounded-lg">
+              <Trash2 className="w-4 h-4" /> Excluir Guia
+            </button>
             
             <div className="mb-8 mt-4">
               <div className="flex items-center gap-3 mb-4">
@@ -424,8 +464,8 @@ export default function App() {
               </div>
               <h1 className="text-4xl font-bold text-white mb-4">{guideDetails.guide.title}</h1>
               <div className="flex gap-4 text-slate-400 text-sm">
-                <span>👁️ {guideDetails.guide.views} views</span>
-                <span>👍 {guideDetails.guide.rating} avaliações</span>
+                <span className="flex items-center gap-1.5"><Eye className="w-4 h-4" /> {guideDetails.guide.views} views</span>
+                <span className="flex items-center gap-1.5"><ThumbsUp className="w-4 h-4" /> {guideDetails.guide.rating} avaliações</span>
               </div>
             </div>
 
@@ -435,14 +475,18 @@ export default function App() {
 
             <div className="flex items-center gap-4 bg-slate-900/60 p-6 rounded-xl border border-slate-800 mb-10">
               <span className="text-white font-medium">Avalie este guia:</span>
-              <button onClick={() => handleVote(guideDetails.guide.id, "upvote")} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg flex gap-2">
-                👍 <span className="font-bold text-emerald-400">{guideDetails.guide.rating}</span>
+              <button onClick={() => handleVote(guideDetails.guide.id, "upvote")} className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <ThumbsUp className="w-4 h-4" /> <span className="font-bold text-emerald-400">{guideDetails.guide.rating}</span>
               </button>
-              <button onClick={() => handleVote(guideDetails.guide.id, "downvote")} className="bg-slate-800 hover:bg-red-900/30 text-slate-400 px-4 py-2 rounded-lg">👎</button>
+              <button onClick={() => handleVote(guideDetails.guide.id, "downvote")} className="bg-slate-800 hover:bg-red-900/30 text-slate-400 px-4 py-2 rounded-lg flex items-center justify-center transition-colors">
+                <ThumbsDown className="w-4 h-4" />
+              </button>
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold text-white mb-6">💬 Comentários ({guideDetails.comments.length})</h3>
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <MessageSquare className="w-6 h-6 text-indigo-500" /> Comentários ({guideDetails.comments.length})
+              </h3>
               <form onSubmit={handleCreateComment} className="flex gap-2 mb-8">
                 <input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Deixe um comentário..." className="flex-1 bg-slate-800 border border-slate-700 text-white rounded-lg p-3 outline-none" />
                 <button type="submit" disabled={!newComment.trim()} className="bg-indigo-600 px-6 font-bold rounded-lg text-white disabled:opacity-50">Enviar</button>
