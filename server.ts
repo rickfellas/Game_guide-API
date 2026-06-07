@@ -6,7 +6,9 @@ import gameRoutes from "./src/routes/gameRoutes";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  
+  // CORREÇÃO: O Railway fala  qual será a porta através do process.env.PORT
+  const PORT = process.env.PORT || 3000;
 
   // Middleware para parsear JSON
   app.use(express.json());
@@ -20,7 +22,7 @@ async function startServer() {
     res.status(404).json({ error: "Endpoint não encontrado" });
   });
 
-  // Integrando o Vite como middleware para ambiente de desenvolvimento
+  // Integrando o Vite como middleware para ambiente de desenvolvimento --.> desistência
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -31,13 +33,15 @@ async function startServer() {
     // Modo de produção: serve os arquivos estáticos do React
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
+
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
 
+  // Escutando na porta dinâmica
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
