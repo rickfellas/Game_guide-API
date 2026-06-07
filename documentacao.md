@@ -12,7 +12,7 @@ O **Hub de Guias** é uma aplicação web Fullstack desenvolvida para permitir q
 
 O projeto adota uma arquitetura de **Monólito**, onde o backend (Express) fornece a API REST e, simultaneamente, serve os ficheiros estáticos do frontend (React) no ambiente de produção na nuvem.
 
-> **Contexto Académico:** Este projeto foi desenvolvido como requisito prático para a disciplina de **Sistemas Distribuídos** do curso de Sistemas de Informação.
+> **Contexto Acadêmico:** Este projeto foi desenvolvido como requisito prático para a disciplina de **Sistemas Distribuídos** do curso de Sistemas de Informação.
 
 ---
 
