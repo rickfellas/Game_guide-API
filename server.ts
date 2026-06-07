@@ -6,7 +6,7 @@ import gameRoutes from "./src/routes/gameRoutes";
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
   // Middleware para parsear JSON
   app.use(express.json());
