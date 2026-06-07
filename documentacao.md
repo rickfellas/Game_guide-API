@@ -1,193 +1,86 @@
-Documentação da API - Microsserviço de Guias e Comunidade
+# 🎮 Hub de Guias (Game Guide API)
 
-Este microsserviço é responsável por gerenciar o motor de fórum, wiki, walkthroughs, comentários e avaliações de jogos dentro da plataforma GameVerse.
-⚙️ Configuração de Produção e Autenticação
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-131415?style=for-the-badge&logo=railway&logoColor=white)
 
-    Base URL: http://localhost:3000 (ou a porta definida no ambiente de produção).
-    Autenticação: As rotas protegidas exigem o envio de um JWT Token no cabeçalho da requisição através do formato Bearer Token.  
-    Headers obrigatórios para rotas protegidas: 
-    
-    Authorization: Bearer <seu_token_jwt>
-Content-Type: application/json
+## 📌 Visão Geral
+O **Hub de Guias** é uma aplicação web Fullstack desenvolvida para permitir que a comunidade de jogadores crie, faça a gestão e partilhe guias, tutoriais e dicas de jogos (como *Resident Evil*, *Dark Souls*, *God of War*, entre outros). 
 
-URL DE PRODUÇÃO: https://gameguide-api-production.up.railway.app/
+O projeto adota uma arquitetura de **Monólito**, onde o backend (Express) fornece a API REST e, simultaneamente, serve os ficheiros estáticos do frontend (React) no ambiente de produção na nuvem.
 
--> senha de token para simular validação: chavesenha
+> **Contexto Académico:** Este projeto foi desenvolvido como requisito prático para a disciplina de **Sistemas Distribuídos** do curso de Sistemas de Informação.
 
 ---
 
-## 🚀 Endpoints (Rotas da API)
+## ⚙️ Funcionalidades
+- **Gestão de Catálogo (CRUD):** Registo, visualização e exclusão de jogos da biblioteca.
+- **Gestão de Guias:** Criação de guias detalhados sob categorias específicas (Walkthrough, Loot, Conquistas, Modding), leitura e eliminação.
+- **Feed da Comunidade:** Painel central que consolida os guias recentes de todos os jogos, com filtros dinâmicos de pesquisa (por texto, categoria e ano).
+- **Sistema de Engajamento:** Votação (Upvotes/Downvotes) calculada em tempo real e secção de comentários em cada guia.
+- **Exclusão em Cascata (Cascade Delete):** Lógica robusta de base de dados que garante a integridade relacional (ao apagar um jogo, os seus guias e comentários são removidos automaticamente).
+- **Simulação de Painel de Autor:** Landing page com proteção visual indicando a gestão e propriedade do conteúdo por parte do utilizador.
 
-### 1. Listar Todos os Jogos
-Retorna a listagem de jogos disponíveis no catálogo para alimentar a interface.
-* **Rota:** `GET /api/games`
-* **Autenticação:** Pública (Não exige token).
-* **Resposta de Sucesso (200 OK):**
-```json
-[
-  {
-    "id": "game1",
-    "title": "Skyrim"
-  }
-]
+---
 
+## 🗄️ Modelação da Base de Dados
+A base de dados relacional é composta por três entidades principais com relacionamento em cascata (1:N):
+1. **Game (Jogo):** `id`, `title`, `franchise`, `releaseYear`, `isCompleted`.
+2. **Guide (Guia):** `id`, `title`, `content`, `category`, `tags`, `rating`, `views`, `gameId`.
+3. **Comment (Comentário):** `id`, `userId`, `content`, `guideId`.
 
-2. Listar Guias de um Jogo Específico
+---
 
-Busca todos os tutoriais e walkthroughs atrelados a um jogo específico, permitindo filtros opcionais por categoria na query string (ex: ?category=Conquistas).
+## 📡 Endpoints da API REST
 
-    Rota: GET /api/games/:gameId/guides
+### 🕹️ Jogos (`/api/games`)
+- `GET /` - Retorna o catálogo completo de jogos.
+- `POST /` - Regista um novo jogo.
+- `GET /:id/guides` - Retorna todos os guias associados a um jogo.
+- `DELETE /:id` - Elimina um jogo e todo o seu conteúdo dependente.
 
-    Autenticação: Pública (Não exige token).
+### 📖 Guias (`/api/guides`)
+- `GET /` - Retorna o feed global com os guias mais recentes (limite: 20).
+- `POST /` - Publica um novo guia num jogo específico.
+- `GET /:id` - Retorna os detalhes de um guia e os seus comentários.
+- `POST /:id/vote` - Regista um voto positivo ou negativo.
+- `POST /:id/comments` - Adiciona um novo comentário.
+- `DELETE /:id` - Elimina um guia e os seus comentários.
 
-    Resposta de Sucesso (200 OK):
+---
 
-{
-  "gameId": "game1",
-  "count": 1,
-  "guides": [
-    {
-      "id": "g1",
-      "gameId": "game1",
-      "userId": "user1",
-      "title": "100% Conquistas - Skyrim",
-      "content": "# Guia Completo\nAqui você encontra todos os segredos...",
-      "category": "Conquistas",
-      "tags": ["platinado", "skyrim", "rpg"],
-      "views": 120,
-      "rating": 45,
-      "createdAt": "2026-05-30T14:35:36.123Z"
-    }
-  ]
-}
+## 🚀 Arquitetura e Deploy (Produção)
+A aplicação está otimizada para integração contínua (CI/CD) e deploy na plataforma **Railway**.
+- **Deploy Híbrido:** O comando de build compila o frontend (`vite build`) e gera o cliente Prisma (`prisma generate`).
+- **Roteamento Unificado:** O `server.ts` identifica o ambiente (`NODE_ENV=production`) e serve a pasta `/dist` na raiz, reservando o prefixo `/api/*` para consumo de dados.
+- **Injeção de Variáveis:** O acesso à base de dados MySQL é feito através de variáveis de ambiente dinâmicas (`${{ MySQL.MYSQL_URL }}`), garantindo tolerância a falhas na infraestrutura, e a comunicação externa aceita tráfego global com bind dinâmico de portas.
 
+---
 
-3. Criar Novo Guia de Comunidade
+## 💻 Como Executar Localmente
 
-Cria um novo tutorial atrelado a um jogo. O userId do autor é extraído de forma segura e automática de dentro do Token JWT pelo middleware de autenticação.  
+**1. Clone o repositório:**
+```bash
+git clone (https://github.com/rickfellas/Game_guide-API)
+cd Game_guide-API
 
-    Rota: POST /api/guides
+2. Instale as dependências:
+--> npm install
 
-    Autenticação: PROTEGIDA (Exige Bearer Token JWT).  
+3. Configure as Variáveis de Ambiente:
+Crie um ficheiro .env na raiz do projeto e insira a string de conexão da sua base de dados MySQL local:
+--> DATABASE_URL="mysql://usuario:senha@localhost:3306/game_guide" 
 
-    Corpo da Requisição (Payload JSON):
+4. Prepare a Base de Dados:
+--> px prisma db push
+--> npx prisma generate
 
-    {
-  "gameId": "game1",
-  "title": "Guia Definitivo de Sobrevivência",
-  "content": "# Introdução\nComo sobreviver aos primeiros níveis facilmente.",
-  "category": "Walkthrough",
-  "tags": ["dicas", "iniciantes"]
-}
-
-Resposta de Sucesso (201 Created):
-
-{
-  "message": "Guia criado com sucesso!",
-  "guide": {
-    "id": "g1780110875361",
-    "gameId": "game1",
-    "userId": "user123",
-    "title": "Guia Definitivo de Sobrevivência",
-    "content": "# Introdução\nComo sobreviver aos primeiros níveis facilmente.",
-    "category": "Walkthrough",
-    "tags": ["dicas", "iniciantes"],
-    "views": 0,
-    "rating": 0,
-    "createdAt": "2026-05-30T14:35:36.123Z"
-  }
-}
+npm run dev
 
 
-4. Buscar Detalhes de um Guia (Contabilizar Visualização)
+👨‍💻 Autores
 
-Busca o conteúdo em Markdown completo de um guia específico. Cada chamada bem-sucedida a esta rota incrementa automaticamente o contador de views do guia em +1.
-
-    Rota: GET /api/guides/:id
-
-    Autenticação: Pública (Não exige token).
-
-    Resposta de Sucesso (200 OK):
-
-  {
-  "id": "g1",
-  "gameId": "game1",
-  "userId": "user1",
-  "title": "100% Conquistas - Skyrim",
-  "content": "# Guia Completo\nAqui você encontra todos os segredos...",
-  "category": "Conquistas",
-  "tags": ["platinado", "skyrim"],
-  "views": 121,
-  "rating": 45,
-  "createdAt": "2026-05-30T14:35:36.123Z"
-}  
-
-
-5. Computar Voto / Avaliação no Guia
-
-Computa upvotes ou downvotes enviados pela comunidade para alimentar o ranqueamento de relevância.
-
-    Rota: POST /api/guides/:id/vote
-
-    Autenticação: PROTEGIDA (Exige Bearer Token JWT).  
-
-    Corpo da Requisição (Payload JSON):
-
-    {
-  "voteType": "upvote" // Aceita "upvote" ou "downvote"
-}
-
-Resposta de Sucesso (200 OK):
-
-{
-  "message": "Voto computado com sucesso!",
-  "rating": 46
-}
-
-
-6. Adicionar Comentário no Guia
-
-Insere uma nova discussão ou comentário em formato de texto para debate público em uma publicação existente.
-
-    Rota: POST /api/guides/:id/comments
-
-    Autenticação: PROTEGIDA (Exige Bearer Token JWT).  
-
-    Corpo da Requisição (Payload JSON):
-
-    {
-  "content": "Muito bom esse tutorial, me ajudou bastante!"
-}
-
-
-Resposta de Sucesso (201 Created):
-
-{
-  "message": "Comentário adicionado!",
-  "comment": {
-    "id": "c1580214",
-    "guideId": "g1",
-    "userId": "user123",
-    "content": "Muito bom esse tutorial, me ajudou bastante!",
-    "createdAt": "2026-05-30T14:40:00.000Z"
-  }
-}
-
-
-🛑 Tratamento de Erros Padrão (Códigos HTTP)
-
-    401 Unauthorized: Retornado quando o Token JWT não é enviado, está mal formatado ou expirou.
-
- { "error": "Token não fornecido. Acesso não autorizado." }   
-
- *   **`400 Bad Request`**: Parâmetros obrigatórios ausentes na criação do payload de guias ou comentários.
-    ```json
-    { "error": "Parâmetros obrigatórios ausentes." }
-
-
-  404 Not Found: Tentativa de buscar ou interagir com um ID de guia inexistente.
-  
-  { "error": "Guia não encontrado." }
-
-
-  -------
+Estudadntes de Sistemas de informação: Flávio Kalyff e Rykelme Souza
